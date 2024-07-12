@@ -1,13 +1,4 @@
-import {
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Radio,
-  Row,
-  Select,
-} from "antd";
+import { Button, Form, Input, InputNumber, Radio, Select, Space } from "antd";
 
 interface Props {
   onClose: () => void;
@@ -18,8 +9,14 @@ const UserForm = ({ onClose }: Props) => {
 
   const { Option } = Select;
 
+  const onFinish = () => {
+    console.log("form", form.getFieldsValue());
+
+    onClose();
+  };
+
   return (
-    <Form layout="vertical" form={form}>
+    <Form layout="vertical" form={form} onFinish={onFinish}>
       <Form.Item
         name="name"
         label="Name"
@@ -45,8 +42,8 @@ const UserForm = ({ onClose }: Props) => {
         label="Roles"
         rules={[{ required: true, message: "Please select your role" }]}>
         <Select>
-          <Option value="demo">Admin</Option>
-          <Option value="demo">User</Option>
+          <Option value="admin">Admin</Option>
+          <Option value="user">User</Option>
         </Select>
       </Form.Item>
       <Form.Item
@@ -57,6 +54,14 @@ const UserForm = ({ onClose }: Props) => {
           <Radio value="male"> Male </Radio>
           <Radio value="female"> Female </Radio>
         </Radio.Group>
+      </Form.Item>
+      <Form.Item>
+        <Space>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button htmlType="submit" type="primary">
+            Submit
+          </Button>
+        </Space>
       </Form.Item>
     </Form>
   );
