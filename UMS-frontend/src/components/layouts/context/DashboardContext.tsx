@@ -3,9 +3,9 @@ import { Outlet } from "react-router-dom";
 
 const { Content } = Layout;
 
-const AppContent = () => {
+const DashboardContext = () => {
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgLayout, borderRadiusLG },
   } = theme.useToken();
 
   return (
@@ -14,8 +14,7 @@ const AppContent = () => {
         margin: "24px 16px",
         padding: 24,
         minHeight: 280,
-        height: 2000,
-        background: colorBgContainer,
+        background: colorBgLayout,
         borderRadius: borderRadiusLG,
       }}>
       <Outlet />
@@ -23,4 +22,4 @@ const AppContent = () => {
   );
 };
 
-export default AppContent;
+export default DashboardContext;
