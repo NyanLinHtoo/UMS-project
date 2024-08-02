@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 
 const validateToken = async (req, res, next) => {
   let token;
-  const authHeader = req.headers.Authorization || req.headers.authorization;
-  if (authHeader && authHeader.startWith("Bearer")) {
+  let authHeader = req.headers.Authorization || req.headers.authorization;
+  console.log("I am here");
+  if (authHeader && authHeader.startsWith("Bearer")) {
     token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.ACCESS_TOKEN_SERCET, (err, decoded) => {
       if (err) {

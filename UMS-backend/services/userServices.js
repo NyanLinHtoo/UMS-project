@@ -10,6 +10,7 @@ const getAllUserService = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -62,6 +63,7 @@ const getUserByIdService = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -71,14 +73,18 @@ const getUserByIdService = async (req, res) => {
 const updateUserService = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
+    console.log("Updateservice ===> ", user);
     if (!user) {
       res.status(404);
       throw new Error("User is not found");
     }
-    const updatedUser = await User.findByIdAndUpdate(req.body);
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -96,6 +102,7 @@ const deleteUserService = async (req, res) => {
     res.status(200).json(user);
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -103,6 +110,7 @@ const deleteUserService = async (req, res) => {
 // @route Post /api/users/register
 // @access public
 const registerUserService = async (req, res) => {
+  console.log("Req Body === >", req.body);
   try {
     const { name, email, phone, gender, password } = req.body;
     if (!name || !email || !phone || !gender || !password) {
@@ -136,6 +144,7 @@ const registerUserService = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -144,28 +153,48 @@ const registerUserService = async (req, res) => {
 // @access public
 const loginUserService = async (req, res) => {
   try {
+    console.log("Login attempt with body:", req.body);
     const { email, password } = req.body;
+
     if (!email || !password) {
-      res.status(400);
-      throw new Error("All Field are mandatory");
+      console.log("Missing email or password");
+      return res.status(400).json({ error: "All fields are mandatory" });
     }
+
+    console.log("Searching for user with email:", email);
     const user = await User.findOne({ email });
-    if (user && (await bcrypt.compare(user.password, password))) {
-      const accessToken = await jwt.sign(
-        {
-          user: {
-            username: user.username,
-            email: user.email,
-            id: user._id,
-          },
-        },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "30m" }
-      );
-      res.status(200).json({ accessToken });
+    console.log("User search result:", user);
+
+    if (!user) {
+      console.log("No user found with email:", email);
+      return res.status(401).json({ error: "Invalid email or password" });
     }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("Password validity:", isPasswordValid);
+
+    if (!isPasswordValid) {
+      console.log("Invalid password for user:", email);
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const accessToken = jwt.sign(
+      {
+        user: {
+          username: user.username,
+          email: user.email,
+          id: user._id,
+        },
+      },
+      process.env.ACCESS_TOKEN_SERCET,
+      { expiresIn: "30m" }
+    );
+
+    console.log("Login successful for user:", email);
+    res.status(200).json({ accessToken });
   } catch (err) {
-    console.log(err);
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -173,7 +202,18 @@ const loginUserService = async (req, res) => {
 // @route Get /api/users/me
 // @access private
 const currentUserService = async (req, res) => {
-  res.json(req.user);
+  console.log("req user===>", req.user);
+  try {
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized. User not authenticated." });
+    }
+    res.json(req.user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 module.exports = {

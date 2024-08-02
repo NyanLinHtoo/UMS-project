@@ -5,7 +5,7 @@ import {
   EditOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserDrawer from "./components/UserDrawer";
 
 export interface DataType {
@@ -21,6 +21,8 @@ const UserTable = () => {
   const [open, setOpen] = useState(false);
   const [currentRecords, setCurrentRecords] = useState<DataType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {});
 
   const handleOk = () => {
     setIsModalOpen(false);

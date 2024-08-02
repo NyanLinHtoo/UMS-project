@@ -1,9 +1,9 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import AppLayoutPage from "../../components/layouts/LayoutPage";
-import Login from "../../components/authentication/login/Login";
-import Register from "../../components/authentication/register/Register";
-import NotFoundPage from "../../components/error-pages/NotFoundPage";
-import UserTable from "../../components/user/UserTable";
+import AppLayoutPage from "../components/layouts/LayoutPage";
+import Login from "../components/authentication/login/Login";
+import Register from "../components/authentication/register/Register";
+import NotFoundPage from "../components/error-pages/NotFoundPage";
+import UserTable from "../components/user/UserTable";
 
 const Router = () => {
   const config = createBrowserRouter([

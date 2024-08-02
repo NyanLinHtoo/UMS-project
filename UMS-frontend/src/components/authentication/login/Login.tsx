@@ -1,14 +1,26 @@
 import { Button, Checkbox, Form, Input, Typography } from "antd";
+import useAuth from "../../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const { Title, Text, Link } = Typography;
+
+  const onFinish = (values: unknown) => {
+    login(values).then(() => {
+      navigate("/dashboard");
+    });
+  };
+
   return (
     <Form
       name="basic"
       labelCol={{ span: 24 }}
       className="max-w-sm mx-auto my-48 p-8 rounded-tl-3xl rounded-br-3xl border-2 drop-shadow-lg shadow-black"
       // initialValues={{ remember: true }}
-      // onFinish={onFinish}
+      onFinish={onFinish}
       // onFinishFailed={onFinishFailed}
       autoComplete="off">
       <Title level={3} className="text-purple-800 mb-6 text-center text-2xl">
