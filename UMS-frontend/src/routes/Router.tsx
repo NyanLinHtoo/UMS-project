@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import AppLayoutPage from "../components/layouts/LayoutPage";
 import Login from "../components/authentication/login/Login";
 import Register from "../components/authentication/register/Register";
@@ -8,6 +12,10 @@ import UserTable from "../components/user/UserTable";
 const Router = () => {
   const config = createBrowserRouter([
     {
+      path: "/",
+      element: <Navigate to="/login" replace />,
+    },
+    {
       path: "/login",
       element: <Login />,
     },
@@ -16,11 +24,11 @@ const Router = () => {
       element: <Register />,
     },
     {
-      path: "/",
+      path: "/dashboard",
       element: <AppLayoutPage />,
       children: [
         {
-          path: "/users",
+          path: "/dashboard/users",
           element: <UserTable />,
         },
       ],

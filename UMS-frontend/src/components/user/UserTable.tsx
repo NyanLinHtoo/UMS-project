@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import UserDrawer from "./components/UserDrawer";
+import { userServices } from "../../services/apiServices";
 
 export interface DataType {
   key: string;
@@ -22,7 +23,20 @@ const UserTable = () => {
   const [currentRecords, setCurrentRecords] = useState<DataType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {});
+  useEffect(() => {
+    console.log("I am in useEffect");
+
+    const fetchData = async () => {
+      try {
+        const result = await userServices.getAll();
+        console.log("======RESULT======");
+        console.log(result);
+      } catch (err) {
+        console.log("ERROR ===> ", err);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleOk = () => {
     setIsModalOpen(false);

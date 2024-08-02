@@ -1,10 +1,8 @@
 import { authApiClient } from "./api-client";
 
-// Define an interface for the login payload
 export interface LoginPayload {
-  username: string;
+  email: string;
   password: string;
-  // Add any other fields that your login payload might have
 }
 
 class LoginService {

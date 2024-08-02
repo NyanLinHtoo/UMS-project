@@ -5,11 +5,15 @@ const jwt = require("jsonwebtoken");
 // @route Get /api/users/
 // @access private
 const getAllUserService = async (req, res) => {
+  console.log("Starting getAllUserService");
+
   try {
-    const user = await User.find();
-    res.status(200).json(user);
+    console.log("Attempting to fetch users from database");
+    const users = await User.find();
+    console.log("Users fetched successfully:", users);
+    res.status(200).json(users);
   } catch (err) {
-    console.log(err);
+    console.error("Error in getAllUserService:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -186,8 +190,8 @@ const loginUserService = async (req, res) => {
           id: user._id,
         },
       },
-      process.env.ACCESS_TOKEN_SERCET,
-      { expiresIn: "30m" }
+      process.env.ACCESS_TOKEN_SERCET
+      // { expiresIn: "30m" }
     );
 
     console.log("Login successful for user:", email);

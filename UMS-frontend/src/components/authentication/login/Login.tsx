@@ -1,6 +1,7 @@
 import { Button, Checkbox, Form, Input, Typography } from "antd";
 import useAuth from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { LoginPayload } from "../../../services/loginService";
 
 const Login = () => {
   const { login } = useAuth();
@@ -8,7 +9,7 @@ const Login = () => {
 
   const { Title, Text, Link } = Typography;
 
-  const onFinish = (values: unknown) => {
+  const onFinish = (values: LoginPayload) => {
     login(values).then(() => {
       navigate("/dashboard");
     });
