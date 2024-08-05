@@ -11,13 +11,15 @@ import { RuleObject } from "antd/lib/form";
 import { StoreValue } from "rc-field-form/lib/interface";
 import { useEffect } from "react";
 import { DataType } from "../UserTable";
+import { userServices } from "../../../services/apiServices";
 
 interface Props {
   onClose: () => void;
   initialValues: DataType | null;
+  refreshTable: () => void;
 }
 
-const UserForm = ({ onClose, initialValues }: Props) => {
+const UserForm = ({ onClose, initialValues, refreshTable }: Props) => {
   const [form] = Form.useForm();
 
   const { Option } = Select;
@@ -30,9 +32,19 @@ const UserForm = ({ onClose, initialValues }: Props) => {
     }
   }, [initialValues, form]);
 
-  const onFinish = () => {
-    console.log("form", form.getFieldsValue());
-    onClose();
+  const onFinish = async () => {
+    try {
+      const values = form.getFieldsValue();
+      if (!initialValues?._id) {
+        await userServices.createUser(values);
+      } else {
+        await userServices.updateUser(initialValues._id, values);
+      }
+      refreshTable();
+      onClose();
+    } catch (error) {
+      console.log("Err onFinish => ", error);
+    }
   };
 
   const validatePhoneNumber = (_: RuleObject, value: StoreValue) => {
@@ -88,12 +100,12 @@ const UserForm = ({ onClose, initialValues }: Props) => {
           />
         </Form.Item>
         <Form.Item
-          name="roles"
-          label="Roles"
+          name="role"
+          label="Role"
           rules={[{ required: true, message: "Please select your role" }]}>
           <Select>
-            <Option value="Agent">Agent</Option>
-            <Option value="User">User</Option>
+            <Option value="agent">Agent</Option>
+            <Option value="user">User</Option>
           </Select>
         </Form.Item>
         <Form.Item

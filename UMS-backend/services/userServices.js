@@ -39,6 +39,8 @@ const createUserService = async (req, res) => {
       role,
       password: hashedPassword,
     });
+    console.log("User ===> ", user);
+
     if (user) {
       res.status(201).json({
         _id: user.id,

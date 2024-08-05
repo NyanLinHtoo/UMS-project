@@ -7,9 +7,10 @@ interface Props {
   onClose: () => void;
   open: boolean;
   records: DataType | null;
+  refreshTable: () => void;
 }
 
-const UserDrawer = ({ onClose, open, records }: Props) => {
+const UserDrawer = ({ onClose, open, records, refreshTable }: Props) => {
   return (
     <>
       <Drawer
@@ -22,7 +23,11 @@ const UserDrawer = ({ onClose, open, records }: Props) => {
             paddingBottom: 80,
           },
         }}>
-        <UserForm onClose={onClose} initialValues={records} />
+        <UserForm
+          onClose={onClose}
+          initialValues={records}
+          refreshTable={refreshTable}
+        />
       </Drawer>
     </>
   );

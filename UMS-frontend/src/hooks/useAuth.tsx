@@ -76,12 +76,19 @@ const useAuth = () => {
       });
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+  };
+
   return {
     token,
     // isAuthenticated,
     // isAdmin,
     // userId,
     // loggedInUser,
+    logout,
     login,
   };
 };

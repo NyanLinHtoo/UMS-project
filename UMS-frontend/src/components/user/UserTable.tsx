@@ -4,13 +4,15 @@ import {
   DeleteOutlined,
   EditOutlined,
   SearchOutlined,
+  ExclamationCircleFilled,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import UserDrawer from "./components/UserDrawer";
 import { userServices } from "../../services/apiServices";
 
 export interface DataType {
   key: string;
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -22,21 +24,60 @@ const UserTable = () => {
   const [open, setOpen] = useState(false);
   const [currentRecords, setCurrentRecords] = useState<DataType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dataSource, setDataSource] = useState<DataType[]>([]);
+
+  const fetchAndUpdateData = useCallback(async () => {
+    try {
+      const result = await userServices.getAll();
+      const dataWithKeys = result.data.map((item: DataType, index: number) => ({
+        ...item,
+        key: (index + 1).toString(),
+      }));
+      setDataSource(dataWithKeys);
+    } catch (err) {
+      console.log("ERROR ===> ", err);
+    }
+  }, []);
 
   useEffect(() => {
-    console.log("I am in useEffect");
+    fetchAndUpdateData();
+  }, [fetchAndUpdateData]);
 
-    const fetchData = async () => {
-      try {
-        const result = await userServices.getAll();
-        console.log("======RESULT======");
-        console.log(result);
-      } catch (err) {
-        console.log("ERROR ===> ", err);
-      }
-    };
-    fetchData();
-  }, []);
+  const { confirm } = Modal;
+
+  const showDeleteConfirm = useCallback(
+    (record: DataType) => {
+      const modal = confirm({
+        title: `Are you sure you want to delete ${record.name}?`,
+        icon: <ExclamationCircleFilled />,
+        content: "This action cannot be undone.",
+        okText: "Yes",
+        okType: "danger",
+        cancelText: "No",
+        centered: true,
+        okButtonProps: { loading: false },
+        onOk: async () => {
+          modal.update({ okButtonProps: { loading: true } });
+          try {
+            await userServices.deleteUser(record._id);
+            setDataSource((prevData) =>
+              prevData.filter((item) => {
+                console.log("item===>", item);
+                console.log("Record===>", record);
+
+                return item._id !== record._id;
+              })
+            );
+            modal.update({ okButtonProps: { loading: false } });
+          } catch (err) {
+            console.error("Error in Delete: ", err);
+            modal.update({ okButtonProps: { loading: false } });
+          }
+        },
+      });
+    },
+    [confirm]
+  );
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -66,12 +107,19 @@ const UserTable = () => {
     setOpen(true);
   };
 
-  const handleDelete = (record: DataType) => {
-    console.log("Delete", record);
-    setIsModalOpen(true);
-  };
+  const refreshTable = useCallback(() => {
+    fetchAndUpdateData();
+    setOpen(false);
+  }, [fetchAndUpdateData]);
 
   const columns: TableProps<DataType>["columns"] = [
+    {
+      title: "Id",
+      dataIndex: "key",
+      key: "key",
+      sorter: (a, b) => a.name.length - b.name.length,
+      render: (text) => <a>{text}</a>,
+    },
     {
       title: "Name",
       dataIndex: "name",
@@ -93,14 +141,14 @@ const UserTable = () => {
     {
       title: "Roles",
       key: "roles",
-      dataIndex: "roles",
+      dataIndex: "role",
       sorter: (a, b) => a.roles.length - b.roles.length,
-      render: (roles) => {
+      render: (role) => {
         let color;
-        roles === "admin" ? (color = "red") : (color = "green");
+        role === "admin" ? (color = "red") : (color = "green");
         return (
-          <Tag color={color} key={roles}>
-            {roles.toUpperCase()}
+          <Tag color={color} key={role}>
+            {role.toUpperCase()}
           </Tag>
         );
       },
@@ -119,38 +167,11 @@ const UserTable = () => {
           <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} />
           <Button
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+            onClick={() => showDeleteConfirm(record)}
             danger
           />
         </Space>
       ),
-    },
-  ];
-
-  const data: DataType[] = [
-    {
-      key: "1",
-      name: "John Brown",
-      email: "test@gmail.com",
-      phone: "0977777777",
-      gender: "male",
-      roles: "admin",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      email: "test@gmail.com",
-      phone: "0977777777",
-      gender: "male",
-      roles: "admin",
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      email: "test@gmail.com",
-      phone: "0977777777",
-      gender: "male",
-      roles: "user",
     },
   ];
 
@@ -167,8 +188,13 @@ const UserTable = () => {
           Create Users
         </Button>
       </div>
-      <Table columns={columns} dataSource={data} />
-      <UserDrawer onClose={onClose} open={open} records={currentRecords} />
+      <Table columns={columns} dataSource={dataSource} />
+      <UserDrawer
+        onClose={onClose}
+        open={open}
+        records={currentRecords}
+        refreshTable={refreshTable}
+      />
       <Modal
         title="Deleting User"
         open={isModalOpen}

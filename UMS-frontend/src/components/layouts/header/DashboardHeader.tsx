@@ -4,8 +4,10 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import { collapseProp } from "../sidebar/DashboardSidebar";
 import type { MenuProps } from "antd";
+import useAuth from "../../../hooks/useAuth";
 
 const { Header } = Layout;
 
@@ -14,14 +16,19 @@ const DashboardHeader = ({ collapsed, setCollapsed }: collapseProp) => {
     token: { colorBgContainer },
   } = theme.useToken();
 
+  const { logout } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: (
-        <a rel="noopener noreferrer" href="/logout">
-          Log out
-        </a>
-      ),
+      label: <a onClick={handleLogout}>Log out</a>,
     },
   ];
 
